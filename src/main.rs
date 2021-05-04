@@ -1,24 +1,40 @@
 use itertools::{Itertools, EitherOrBoth};
+use sysinfo::{System, SystemExt};
 pub use uwuifier;
+use structopt::StructOpt;
+
+use owo_colors::{OwoColorize, Rgb};
 
 mod info;
 use info::{InfoBuilder, InfoType};
-use sysinfo::{System, SystemExt};
+
+mod cli;
+use cli::Opt;
+
 
 fn main() {
     let system = System::new_all();
+    let opt: Opt = Opt::from_args();
 
     let mut info = InfoBuilder::new();
-    info.add(InfoType::UserAtHostname)
-        .add(InfoType::Os)
-        .add(InfoType::Kernel)
-        .add(InfoType::Memory)
-        .add(InfoType::Processor)
-        .add(InfoType::Shell)
-        .add(InfoType::Terminal)
-        .add(InfoType::RootDisk);
+    info.set_color(&opt.color);
 
-    let (art, size) = pad(match system.get_name().unwrap_or_default().as_str() {
+    if let Some(values) = opt.values {
+        for value in values.iter() {
+            info.add(*value);
+        }
+    } else {
+        info.add(InfoType::UserAtHostname)
+            .add(InfoType::Os)
+            .add(InfoType::Kernel)
+            .add(InfoType::Memory)
+            .add(InfoType::Processor)
+            .add(InfoType::Shell)
+            .add(InfoType::Terminal)
+            .add(InfoType::RootDisk);
+    }
+
+    let (art, size, color) = pad_and_color(match system.get_name().unwrap_or_default().as_str() {
         "Arch Linux" => include_str!("../art/arch"),
         _ => include_str!("../art/default"),
     });
@@ -26,10 +42,10 @@ fn main() {
     for elem in art.lines().zip_longest(info.get().iter()) {
         match elem {
             EitherOrBoth::Both(art_line, info_line) => {
-                uwu!("{}{}", art_line, owo!(info_line));
+                uwu!("{}{}", art_line.color(color), owo!(info_line));
             },
             EitherOrBoth::Left(art_line) => {
-                uwu!("{}", art_line);
+                uwu!("{}", art_line.color(color));
             },
             EitherOrBoth::Right(info_line) => {
                 for _ in 0..size { print!(" "); }
@@ -39,10 +55,11 @@ fn main() {
     }
 }
 
-fn pad(art: &str) -> (String, usize) {
+fn pad_and_color(art: &str) -> (String, usize, Rgb) {
     let mut new = String::new();
     let size = art.lines().map(|e| e.len()).max().unwrap() + 3;
-    for line in art.lines() {
+    let hex= hex::decode(art.lines().next().unwrap()).unwrap();
+    for line in art.lines().skip(1) {
         let mut line = line.to_string();
         let diff = size - line.len();
         for _ in 0..diff {
@@ -51,7 +68,7 @@ fn pad(art: &str) -> (String, usize) {
         line.push_str("\n");
         new.push_str(&line);
     }
-    (new, size)
+    (new, size, Rgb(hex[0], hex[1], hex[2]))
 }
 
 #[macro_export]

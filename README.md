@@ -6,5 +6,6 @@ Alternative to *fetch, uwuifies all stats.
 TODO:
 - [ ] Add more OS logos
 - [ ] Add more stats
-- [ ] Colored output
-- [ ] Add CLI flags
+- [x] ~~Colored output~~
+- [x] ~~Add CLI flags~~
+- [ ] Find out how to colorize clap output
