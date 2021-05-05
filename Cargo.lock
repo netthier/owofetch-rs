@@ -226,6 +226,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f2fe43bf372b08cc9ccee5144715db59c79ab00168bbe4cf0d274dc0d5f64d7f"
 
 [[package]]
+name = "owofetch"
+version = "0.1.0"
+dependencies = [
+ "hex",
+ "itertools",
+ "owo-colors 2.0.0",
+ "structopt",
+ "strum",
+ "sysinfo",
+ "uwuify",
+]
+
+[[package]]
 name = "parking_lot"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -462,19 +475,6 @@ name = "unicode-xid"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f7fe0bb3479651439c9112f72b6c505038574c9fbb575ed1bf3b797fa39dd564"
-
-[[package]]
-name = "uwufetch"
-version = "0.1.0"
-dependencies = [
- "hex",
- "itertools",
- "owo-colors 2.0.0",
- "structopt",
- "strum",
- "sysinfo",
- "uwuify",
-]
 
 [[package]]
 name = "uwuify"

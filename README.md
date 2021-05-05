@@ -1,4 +1,4 @@
-# uwufetch-rs
+# owofetch-rs
 Alternative to *fetch, uwuifies all stats.
 
 ![](screenshot.png)

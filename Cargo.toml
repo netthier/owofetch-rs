@@ -1,5 +1,5 @@
 [package]
-name = "uwufetch"
+name = "owofetch"
 version = "0.1.0"
 authors = ["nett_hier <lp@netthier.de>"]
 edition = "2018"
