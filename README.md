@@ -12,4 +12,4 @@ TODO:
 - [ ] Add more stats
 - [x] ~~Colored output~~
 - [x] ~~Add CLI flags~~
-- [ ] Find out how to colorize clap output
+- [ ] Find out how to uwuize clap output
