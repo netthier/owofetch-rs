@@ -5,7 +5,6 @@ use std::ffi::OsString;
 use std::str::FromStr;
 use owo_colors::{OwoColorize, Rgb};
 use strum::EnumString;
-use std::fs::read;
 
 #[derive(Debug, EnumString, Copy, Clone)]
 pub enum InfoType {
@@ -70,25 +69,9 @@ impl InfoBuilder {
         Some(format!("{} {}", "Kernel".color(self.word_color), self.system.get_kernel_version()?))
     }
     fn get_memory(&self) -> Option<String> {
-        // sysinfo has rounding errors, so we're rolling our own ram method, using sysinfo as a fallback
-        let mut total = self.system.get_total_memory();
-        let mut available = self.system.get_available_memory();
-        if let Ok(data) = read("/proc/meminfo") {
-            let string = String::from_utf8_lossy(&data);
-            for line in string.split('\n') {
-                let field = match line.split(':').next() {
-                    Some("MemTotal") => &mut total,
-                    Some("MemAvailable") => &mut available,
-                    _ => continue,
-                };
-                if let Some(val_str) = line.rsplit(' ').nth(1) {
-                    if let Ok(value) = u64::from_str(val_str) {
-                        *field = value
-                    }
-                }
-            }
-        }
-        Some(format!("{} {:.2}MiB / {:.2}MiB", "Memory:".color(self.word_color), (total - available) as f32 / 1024.0, total as f32 / 1024.0))
+        let total = self.system.get_total_memory();
+        let used = self.system.get_used_memory();
+        Some(format!("{} {:.2}MB / {:.2}MB", "Memory:".color(self.word_color), used as f32 / 1000.0, total as f32 / 1000.0))
     }
 
     fn get_user_at_host(&self) -> Option<String> {
@@ -113,7 +96,7 @@ impl InfoBuilder {
     }
 
     fn get_root_disk(&self) -> Option<String> {
-        let disk = self.system.get_disks().iter().filter(|e| e.get_mount_point() == OsString::from_str("/").unwrap()).next()?;
+        let disk = self.system.get_disks().iter().find(|e| e.get_mount_point() == OsString::from_str("/").unwrap())?;
         let total = disk.get_total_space();
         let used = total - disk.get_available_space();
 

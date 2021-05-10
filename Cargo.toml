@@ -1,6 +1,6 @@
 [package]
 name = "owofetch"
-version = "0.2.1"
+version = "0.2.2"
 authors = ["nett_hier <lp@netthier.de>"]
 edition = "2018"
 

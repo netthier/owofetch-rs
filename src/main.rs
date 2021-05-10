@@ -15,6 +15,7 @@ use cli::Opt;
 
 fn main() {
     let system = System::new_all();
+    dbg!(system.get_total_memory());
     let opt: Opt = Opt::from_args();
 
     let mut info = InfoBuilder::new();
@@ -65,9 +66,9 @@ fn pad_and_color(art: &str) -> (String, usize, Rgb) {
         let mut line = line.to_string();
         let diff = size - line.graphemes(true).count();
         for _ in 0..diff {
-            line.push_str(" ");
+            line.push(' ');
         }
-        line.push_str("\n");
+        line.push('\n');
         new.push_str(&line);
     }
     (new, size, Rgb(hex[0], hex[1], hex[2]))

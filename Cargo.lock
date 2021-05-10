@@ -227,7 +227,7 @@ checksum = "f2fe43bf372b08cc9ccee5144715db59c79ab00168bbe4cf0d274dc0d5f64d7f"
 
 [[package]]
 name = "owofetch"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "hex",
  "itertools",
