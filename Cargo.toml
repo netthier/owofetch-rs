@@ -1,6 +1,6 @@
 [package]
 name = "owofetch"
-version = "0.1.0"
+version = "0.2.1"
 authors = ["nett_hier <lp@netthier.de>"]
 edition = "2018"
 
@@ -14,3 +14,4 @@ uwuify = "^0.2"
 owo-colors = "^2.0"
 hex = "^0.4"
 strum = { version = "^0", features = ["derive"] }
+unicode-segmentation = "^1.7"

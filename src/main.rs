@@ -2,6 +2,7 @@ use itertools::{Itertools, EitherOrBoth};
 use sysinfo::{System, SystemExt};
 pub use uwuifier;
 use structopt::StructOpt;
+use unicode_segmentation::UnicodeSegmentation;
 
 use owo_colors::{OwoColorize, Rgb};
 
@@ -36,6 +37,7 @@ fn main() {
 
     let (art, size, color) = pad_and_color(match system.get_name().unwrap_or_default().as_str() {
         "Arch Linux" => include_str!("../art/arch"),
+        "Manjaro Linux" => include_str!("../art/manjaro"),
         _ => include_str!("../art/default"),
     });
 
@@ -57,11 +59,11 @@ fn main() {
 
 fn pad_and_color(art: &str) -> (String, usize, Rgb) {
     let mut new = String::new();
-    let size = art.lines().map(|e| e.len()).max().unwrap() + 3;
+    let size = art.lines().map(|e| e.graphemes(true).count()).max().unwrap() + 3;
     let hex= hex::decode(art.lines().next().unwrap()).unwrap();
     for line in art.lines().skip(1) {
         let mut line = line.to_string();
-        let diff = size - line.len();
+        let diff = size - line.graphemes(true).count();
         for _ in 0..diff {
             line.push_str(" ");
         }
