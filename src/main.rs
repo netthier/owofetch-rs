@@ -11,6 +11,8 @@ use info::{InfoBuilder, InfoType};
 
 mod cli;
 use cli::Opt;
+use textwrap::{termwidth, wrap};
+use uwuifier::uwuify_str_sse;
 
 
 fn main() {
@@ -41,17 +43,20 @@ fn main() {
         _ => include_str!("../art/default"),
     });
 
-    for elem in art.lines().zip_longest(info.get().iter()) {
+    let mut info = info.get();
+
+    for elem in art.lines().zip_longest(format_info(&info, size)) {
         match elem {
             EitherOrBoth::Both(art_line, info_line) => {
-                uwu!("   {}{}", art_line.color(color), owo!(info_line));
+                uwu!("   {}", art_line.color(color));
+                println!("{}", info_line);
             },
             EitherOrBoth::Left(art_line) => {
                 uwu!("   {}", art_line.color(color));
             },
             EitherOrBoth::Right(info_line) => {
-                for _ in 0..size { print!(" "); }
-                uwu!("   {}", owo!(info_line));
+                for _ in 0..size+3 { print!(" "); }
+                println!("{}", info_line);
             }
         }
     }
@@ -73,16 +78,20 @@ fn pad_and_color(art: &str) -> (String, usize, Rgb) {
     (new, size, Rgb(hex[0], hex[1], hex[2]))
 }
 
-#[macro_export]
-macro_rules! owo {
-    ($expression:expr) => {
-        $expression.as_ref().unwrap_or(&"?".to_string())
+fn format_info(info: &[Option<String>], art_size: usize) -> Vec<String>{
+    let width = termwidth() - (art_size + 3);
+    let mut new_info = Vec::new();
+    for line in info.iter() {
+        if let Some(info) = line {
+            new_info.append(&mut wrap(&uwuify_str_sse(&info), width).iter().map(|e| String::from(&*e.clone())).collect());
+        }
     }
+    new_info
 }
 
 #[macro_export]
 macro_rules! uwu {
     ($($arg:tt)*) => {{
-        println!("{}", uwuifier::uwuify_str_sse(&format!($($arg)*)))
+        print!("{}", uwuifier::uwuify_str_sse(&format!($($arg)*)))
     }}
 }

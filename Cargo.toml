@@ -16,4 +16,4 @@ hex = "^0.4"
 strum = { version = "^0", features = ["derive"] }
 unicode-segmentation = "^1.7"
 english-numbers = "^0.3"
-terminal_size = "^0.1"
+textwrap = { version = "^0.13", features = ["terminal_size"] }
