@@ -5,6 +5,8 @@ use std::ffi::OsString;
 use std::str::FromStr;
 use owo_colors::{OwoColorize, Rgb};
 use strum::EnumString;
+use english_numbers::{Formatting, convert};
+use crate::cli::Opt;
 
 #[derive(Debug, EnumString, Copy, Clone)]
 pub enum InfoType {
@@ -21,15 +23,23 @@ pub enum InfoType {
 pub struct InfoBuilder {
     info: Vec<InfoType>,
     system: System,
+    num_fmt_params: Formatting,
     word_color: Rgb,
+    config: Opt,
 }
 
 impl InfoBuilder {
-    pub fn new() -> Self {
+    pub fn new(opt: &Opt) -> Self {
         Self {
             info: Vec::new(),
             system: System::new_all(),
+            num_fmt_params: Formatting {
+                spaces: true,
+                conjunctions: true,
+                ..Default::default()
+            },
             word_color: Rgb(0xFF, 0xFF, 0xFF),
+            config: opt.clone(),
         }
     }
 
@@ -61,6 +71,19 @@ impl InfoBuilder {
         info_vec
     }
 
+    fn num_fmt(&self, mut num: f32) -> String {
+        if self.config.nums {
+            format!("{:.2}", num)
+        } else {
+            let mut decimals = 0;
+            while num > 99.0 {
+                num /= 10.0;
+                decimals += 1;
+            }
+            format!("About {}", convert(num as i64*10_i64.pow(decimals), self.num_fmt_params))
+        }
+    }
+
     fn get_os(&self) -> Option<String> {
         Some(format!("{} {}", "OS:".color(self.word_color), self.system.get_name()?))
     }
@@ -68,10 +91,11 @@ impl InfoBuilder {
     fn get_kernel(&self) -> Option<String> {
         Some(format!("{} {}", "Kernel".color(self.word_color), self.system.get_kernel_version()?))
     }
+
     fn get_memory(&self) -> Option<String> {
-        let total = self.system.get_total_memory();
-        let used = self.system.get_used_memory();
-        Some(format!("{} {:.2}MB / {:.2}MB", "Memory:".color(self.word_color), used as f32 / 1000.0, total as f32 / 1000.0))
+        let total = self.system.get_total_memory() as f32 / 1000.0;
+        let used = self.system.get_used_memory() as f32 / 1000.0;
+        Some(format!("{} {} Megabytes / {} Megabytes", "Memory:".color(self.word_color), self.num_fmt(used), self.num_fmt(total)))
     }
 
     fn get_user_at_host(&self) -> Option<String> {
@@ -87,7 +111,7 @@ impl InfoBuilder {
         let process = self.system.get_process(pid as i32)?;
         let shell = self.system.get_process(process.parent()?)?;
         let terminal = self.system.get_process(shell.parent()?)?;
-        Some(format!("{} {}", "Terminal".color(self.word_color), terminal.name()))
+        Some(format!("{} {}", "Terminal: ".color(self.word_color), terminal.name()))
     }
 
     fn get_cpu(&self) -> Option<String> {
@@ -97,9 +121,9 @@ impl InfoBuilder {
 
     fn get_root_disk(&self) -> Option<String> {
         let disk = self.system.get_disks().iter().find(|e| e.get_mount_point() == OsString::from_str("/").unwrap())?;
-        let total = disk.get_total_space();
-        let used = total - disk.get_available_space();
+        let total = disk.get_total_space() as f32 / 1073741824.0;
+        let used = total - disk.get_available_space() as f32 / 1073741824.0;
 
-        Some(format!("{} {:.2}GiB / {:.2}GiB", "Disk:".color(self.word_color), used as f32 / 1073741824.0, total as f32 / 1073741824.0))
+        Some(format!("{} {} Gibibytes / {} Gibibytes", "Disk:".color(self.word_color), self.num_fmt(used) ,self.num_fmt( total) ))
     }
 }

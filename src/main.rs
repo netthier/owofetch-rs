@@ -15,10 +15,9 @@ use cli::Opt;
 
 fn main() {
     let system = System::new_all();
-    dbg!(system.get_total_memory());
     let opt: Opt = Opt::from_args();
 
-    let mut info = InfoBuilder::new();
+    let mut info = InfoBuilder::new(&opt);
     info.set_color(&opt.color);
 
     if let Some(values) = opt.values {
@@ -45,14 +44,14 @@ fn main() {
     for elem in art.lines().zip_longest(info.get().iter()) {
         match elem {
             EitherOrBoth::Both(art_line, info_line) => {
-                uwu!("{}{}", art_line.color(color), owo!(info_line));
+                uwu!("   {}{}", art_line.color(color), owo!(info_line));
             },
             EitherOrBoth::Left(art_line) => {
-                uwu!("{}", art_line.color(color));
+                uwu!("   {}", art_line.color(color));
             },
             EitherOrBoth::Right(info_line) => {
                 for _ in 0..size { print!(" "); }
-                uwu!("{}", owo!(info_line));
+                uwu!("   {}", owo!(info_line));
             }
         }
     }
