@@ -40,10 +40,11 @@ fn main() {
     let (art, size, color) = pad_and_color(match system.get_name().unwrap_or_default().as_str() {
         "Arch Linux" => include_str!("../art/arch"),
         "Manjaro Linux" => include_str!("../art/manjaro"),
+        "Darwin" => include_str!("../art/apple"),
         _ => include_str!("../art/default"),
     });
 
-    let mut info = info.get();
+    let info = info.get();
 
     for elem in art.lines().zip_longest(format_info(&info, size)) {
         match elem {
